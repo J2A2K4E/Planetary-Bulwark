@@ -31,3 +31,4 @@ Log A* expansions per frame; cap re-path frequency per enemy to prevent spikes.
 Profile instancing counts, and clamp projectile count.
 Verify blockedHook returns correct occupancy when structures are added/removed.
 Have fun building your planetary stronghold!
+HTML is in need of repair
