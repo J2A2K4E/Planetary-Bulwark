@@ -188,3 +188,108 @@ if (p.life <= 0) { p.alive = false; continue; }
 p.pos.x += p.vel.x * dt;
 p.pos.y += p.vel.y * dt;
 p.pos.z += p.vel.z * dt;
+// hit test
+for (const e of gs.ecs.enemies) {
+  if (!e.alive) continue;
+  const dx = e.pos.x - p.pos.x;
+  const dy = e.pos.y - p.pos.y;
+  const dz = e.pos.z - p.pos.z;
+  if (dx*dx + dy*dy + dz*dz < 1.2) {
+    e.hp -= p.damage;
+    p.alive = false;
+    break;
+  }
+}
+}
+
+// Enemy updates
+updateEnemies(gs, dt);
+for (const e of gs.ecs.enemies) {
+if (e.hp <= 0) { e.alive = false; gs.resources.minerals += 2; }
+}
+
+// Orbital ability
+if (gs.orbitalPending) {
+gs.orbitalPending = 0;
+if (gs.cooldowns.orbital<=0) {
+orbitalStrike(gs);
+gs.cooldowns.orbital = 20;
+}
+}
+
+// Shield ability
+if (gs.shieldPending) {
+gs.shieldPending = 0;
+if (gs.cooldowns.shield<=0) {
+deployShield(gs);
+gs.cooldowns.shield = 25;
+}
+}
+
+// Cleanup and render
+gs.ecs.cleanup();
+}
+
+function findTarget(gs, s, range) {
+let best=null, bestD=Infinity;
+const sx = s.mesh.position.x, sz = s.mesh.position.z;
+for (const e of gs.ecs.enemies) {
+if (!e.alive) continue;
+const dx = e.pos.x - sx;
+const dz = e.pos.z - sz;
+const d2 = dxdx + dzdz;
+if (d2 < range*range && d2 < bestD) { bestD = d2; best = e; }
+}
+return best;
+}
+
+function fireAt(gs, s, e) {
+const dir = new THREE.Vector3(e.pos.x - s.mesh.position.x, (e.pos.y+0.5) - (s.mesh.position.y+0.8), e.pos.z - s.mesh.position.z).normalize();
+const speed = 40;
+gs.ecs.projectiles.push({
+pos: { x: s.mesh.position.x, y: s.mesh.position.y+0.8, z: s.mesh.position.z },
+vel: { x: dir.xspeed, y: dir.yspeed, z: dir.z*speed },
+damage: gs.tech.has('turret2') ? 20 : 12,
+life: 2.0,
+alive: true,
+});
+}
+
+function orbitalStrike(gs) {
+// Strike center area
+const center = gridToWorld(gs.baseTargetGrid.x, gs.baseTargetGrid.z);
+for (const e of gs.ecs.enemies) {
+const dx = e.pos.x - center.x;
+const dz = e.pos.z - center.z;
+const d2 = dxdx + dzdz;
+if (d2 < 60*60) {
+e.hp -= 35;
+}
+}
+// Visual flair: simple white flash
+const flash = new THREE.AmbientLight(0xffffff, 2.5);
+gs.scene.add(flash);
+setTimeout(()=> gs.scene.remove(flash), 80);
+}
+
+function deployShield(gs) {
+// Grant temporary HP to structures
+for (const s of gs.structures) s.hp = Math.min(150, s.hp + 30);
+// Visual
+const center = gridToWorld(gs.baseTargetGrid.x, gs.baseTargetGrid.z);
+const geo = new THREE.SphereGeometry(18, 16, 12);
+const mat = new THREE.MeshBasicMaterial({ color: 0x66e0ff, transparent: true, opacity: 0.15, wireframe: true });
+const mesh = new THREE.Mesh(geo, mat);
+mesh.position.set(center.x, center.y+8, center.z);
+gs.scene.add(mesh);
+setTimeout(()=> gs.scene.remove(mesh), 2000);
+}
+
+function gridToWorld(gx, gz) {
+const x = PathGrid.originX + (gx + 0.5) * PathGrid.cellSize;
+const z = PathGrid.originZ + (gz + 0.5) * PathGrid.cellSize;
+const y = sampleHeight(x, z);
+return { x, y, z };
+}
+
+  
