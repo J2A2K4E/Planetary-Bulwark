@@ -1,0 +1,36 @@
+
+<div class="build-bar">
+  <button data-build="turret_basic">Turret</button>
+  <button data-build="generator">Generator</button>
+  <button data-build="extractor">Extractor</button>
+  <button data-build="wall">Wall</button>
+</div>
+
+<div class="tech-tree">
+  <details>
+    <summary>Tech Tree</summary>
+    <div class="tech-grid">
+      <button class="tech" data-tech="turret2">Enhanced Turrets</button>
+      <button class="tech" data-tech="range1">Extended Range</button>
+      <button class="tech" data-tech="orbital1">Orbital Uplink</button>
+      <button class="tech" data-tech="shield1">Shield Matrix</button>
+    </div>
+  </details>
+</div>
+
+<div class="mini-map">
+  <canvas id="minimap" width="160" height="160"></canvas>
+</div>
+
+<div class="hint">
+  WASD/Right-drag to move. Scroll to zoom. B to toggle build. R to rotate. Click to place. ESC to cancel. F to fire orbital (when ready).
+</div>
+</div>
+
+<canvas id="game"></canvas>
+
+<script type="module" src="/main.js"></script>
+
+</body>
+
+</html>
