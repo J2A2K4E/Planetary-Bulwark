@@ -1,0 +1,18 @@
+|-main
+  |-package.json
+  |-server.js
+  |-public/
+    |-index.html
+    |-main.js
+    |-engine/
+      |-ecs.js
+      |-math.js
+      |-noise.js
+      |-terrain.js
+      |-pathfinding.js
+      |-ai.js
+      |-gameplay.js
+      |-render.js
+      |-ui.js
+      |-net.js
+    |-styles.css
